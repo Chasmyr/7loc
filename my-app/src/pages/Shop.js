@@ -1,11 +1,14 @@
-import { Container, CssBaseline, Table, TableBody, TableCell, TableHead, Box, TableContainer, TableRow } from "@mui/material"
+import { Container, CssBaseline, Table, TableBody, TableCell, TableHead, Box, TableContainer, TableRow, Button } from "@mui/material"
 import { useState } from "react"
+import { Link } from "react-router-dom"
 import SearchBar from "../components/SearchBar"
 import Data from '../data/Fixture.json'
 
 const Shop = () => {
 
     const [searchResults, setSearchResults] = useState([])
+    const [cart, setCart] = useState([])
+    const [isCart, setIsCart] = useState(false)
 
     const itemsList = []
     Data.map((shop) => {
@@ -13,7 +16,8 @@ const Shop = () => {
             itemsList.push(items)
         })
     })
-    console.log("rendue")
+    
+    console.log(cart)
 
     return (
         <Container component="main">
@@ -27,16 +31,54 @@ const Shop = () => {
                 boxShadow: 5
             }} >
                 {/* ajouter le loader et le skeleton ici ainsi qu'une barre de recherche qui actualise la liste de produit */}
-                <SearchBar setSearchResults={setSearchResults} itemsList={itemsList} />
+                
                 <Box sx={{minHeight: 350, display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}>
-                    <TableContainer>
-                        <Table sx={{ 
-                            minWidth: {xs: 250, sm: 350, md: 550, lg: 650, xl: 650} }} aria-label="simple table">
+                    {isCart ?
+                        <>
+                            <h1>panier</h1>
+                            <TableContainer>
+                                <Table sx={{ minWidth: {
+                                                    xs: 250,
+                                                    sm: 350,
+                                                    md: 550,
+                                                    lg: 650,
+                                                    xl: 650}
+                                            }}>
+                                    <TableHead sx={{ 
+                                    minWidth: {xs: 250, sm: 350, md: 550, lg: 650, xl: 650} }}>
+                                        <TableCell>Item</TableCell>
+                                        <TableCell>Price</TableCell>
+                                        <TableCell>Quantité</TableCell>
+                                        <TableCell>Actions</TableCell>
+                                    </TableHead>
+                                    <TableBody>
+                                        {cart.map((item, index) => {
+                                            return (
+                                                <TableRow>
+                                                    <TableCell>{item.name}</TableCell>
+                                                    <TableCell>{item.price}€</TableCell>
+                                                    <TableCell>1</TableCell>
+                                                    <TableCell><Button variant="outlined" color="success">+</Button><Button variant="outlined" color="error">-</Button></TableCell>
+                                                </TableRow>
+                                            )
+                                        })}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                            <Button variant="contained" onClick={() => {setIsCart(false)}} sx={{ mb: 2 }}>Revenir à la boutique</Button>
+                        </>
+                        :
+                        <>
+                            <span>Nombre d'objet dans le panier : {cart.length}</span>
+                            <SearchBar setSearchResults={setSearchResults} itemsList={itemsList} />
+                            <TableContainer>
+                                <Table sx={{ 
+                                    minWidth: {xs: 250, sm: 350, md: 550, lg: 650, xl: 650} }} aria-label="simple table">
                                     <TableHead>
                                             <TableCell>Item</TableCell>
                                             <TableCell>Shop</TableCell>
                                             <TableCell>Price</TableCell>
-                                            <TableCell>Add</TableCell>
+                                            <TableCell>Ajout au panier</TableCell>
                                     </TableHead>
                                     <TableBody>
                                         {searchResults?.length ?
@@ -46,26 +88,39 @@ const Shop = () => {
                                                 <TableRow key={index}>
                                                     <TableCell>{item.name}</TableCell>
                                                     <TableCell>shop</TableCell>
-                                                    <TableCell>{item.price}</TableCell>
-                                                    <TableCell>btn</TableCell>
+                                                    <TableCell>{item.price}€</TableCell>
+                                                    <TableCell>
+                                                        <Button variant="outlined" onClick={() => {
+                                                             let cartCopy = cart
+                                                             setCart(cartCopy => [...cartCopy, item])
+                                                        }}>Ajout</Button>
+                                                    </TableCell>
                                                 </TableRow>
                                             )
                                         })
                                         :
-                                        itemsList.map((item, index) => {
+                                        itemsList.slice(0, 25).map((item, index) => {
                                             return(
                                                 <TableRow key={index}>
                                                     <TableCell>{item.name}</TableCell>
                                                     <TableCell>shop</TableCell>
                                                     <TableCell>{item.price}</TableCell>
-                                                    <TableCell>btn</TableCell>
+                                                    <TableCell>
+                                                        <Button variant="outlined" onClick={() => {
+                                                             let cartCopy = cart
+                                                             setCart(cartCopy => [...cartCopy, item])
+                                                        }}>Ajout</Button>
+                                                    </TableCell>
                                                 </TableRow>
                                             )
                                         })
                                         }
                                     </TableBody>
-                        </Table>
-                    </TableContainer>
+                                </Table>
+                            </TableContainer>
+                            <Button variant="contained" onClick={() => {setIsCart(true)}} sx={{ mb: 2 }}>Voir votre panier</Button>
+                        </>
+                    }
                 </Box>
             </Box>
         </Container>
